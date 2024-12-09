@@ -30,8 +30,13 @@ add_subdirectory(lib/tinygltf-release)
 set(HEADER_FILES
     src/Utilitaire/gltfLoader.h
     src/Utilitaire/ShaderManager.h
+    src/Utilitaire/BlinnPhongIlluminationModel.h
+    src/Utilitaire/DepthPeelingEffect.h
+    src/Utilitaire/DynamicShaderBuilder.h
+    src/Utilitaire/IShaderModule.h
     src/Widgets/TriangleWidget.h
     src/Widgets/MixWidget.h
+    src/Widgets/ShaderWidget.h
     src/Cameras/TrackBall.h
     src/Cameras/Freefly.h
 
@@ -42,8 +47,12 @@ set(SOURCES_FILES
     src/main.cpp
     src/Utilitaire/gltfLoader.cpp
     src/Utilitaire/ShaderManager.cpp
+    src/Utilitaire/BlinnPhongIlluminationModel.cpp
+    src/Utilitaire/DepthPeelingEffect.cpp
+    src/Utilitaire/DynamicShaderBuilder.cpp
     src/Widgets/TriangleWidget.cpp
     src/Widgets/MixWidget.cpp
+    src/Widgets/ShaderWidget.cpp
     src/Cameras/TrackBall.cpp
     src/Cameras/Freefly.cpp
 
