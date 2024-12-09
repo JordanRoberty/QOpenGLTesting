@@ -2,6 +2,7 @@
 #include <iostream>
 #include "Widgets/TriangleWidget.h"
 #include "Widgets/MixWidget.h"
+#include "Widgets/ShaderWidget.h"
 
 int main(int argc, char **argv)
 {
@@ -9,7 +10,7 @@ int main(int argc, char **argv)
     
     if(argc < 2)
     {
-        std::cerr << "Usage: " << argv[0] << " <m> or <t>" << std::endl;
+        std::cerr << "Usage: " << argv[0] << " <m> or <t> or <s>" << std::endl;
         return 1;
     }
 
@@ -25,6 +26,13 @@ int main(int argc, char **argv)
         MixWidget mix;
         mix.resize(640,480);
         mix.show();
+        return app.exec();
+    }
+    else if(argv[1][0] == 's') // Shader construction
+    {
+        ShaderWidget shader;
+        shader.resize(640,480);
+        shader.show();
         return app.exec();
     }
     else
