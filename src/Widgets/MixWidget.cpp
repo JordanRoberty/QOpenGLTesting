@@ -269,10 +269,29 @@ void MixWidget::initShaders()
   }
 
   if(!m_mainProgram.link())
-  {
+  { 
     std::cout << "Main link shader error : " << m_mainProgram.log().toStdString() << std::endl;
   }
 
+  // -- Depth Peeling shaders --
+  //manager.loadModule("peeling.vs.glsl");
+  //vertexSource = manager.buildShader("peeling.vs.glsl");
+  if(!m_depthProgram.addShaderFromSourceCode(QOpenGLShader::Vertex, vertexSource)) // same vertex shader as the main program
+  {
+    std::cout << "Peeling vertex shader error : " << m_depthProgram.log().toStdString() << std::endl;
+  }
+
+  manager.loadModule("peeling.fs.glsl");
+  shaderSource = manager.buildShader("peeling.fs.glsl");
+  if(!m_depthProgram.addShaderFromSourceCode(QOpenGLShader::Fragment, shaderSource))
+  {
+    std::cout << "Peeling fragment shader error : " << m_depthProgram.log().toStdString() << std::endl;
+  }
+
+  if(!m_depthProgram.link())
+  {
+    std::cout << "Peeling link shader error : " << m_depthProgram.log().toStdString() << std::endl;
+  }
 
   // -- Blending shaders --
 
@@ -491,7 +510,7 @@ void MixWidget::initDepthPeeling()
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   m_mainProgram.bind();
   //setSceneUniforms(m_mainProgram);
-  //setBlinnPhongUniforms(m_mainProgram);
+  setBlinnPhongUniforms(m_mainProgram);
   setDepthPeelingUniforms(m_mainProgram, 0);
 
   glFinish();
@@ -519,7 +538,7 @@ void MixWidget::depthPeelingPass()
 
 
     //setSceneUniforms(m_mainProgram);
-    //setBlinnPhongUniforms(m_mainProgram);
+    setBlinnPhongUniforms(m_mainProgram);
     setDepthPeelingUniforms(m_mainProgram, i);
         
     renderGLTF(m_mainProgram);

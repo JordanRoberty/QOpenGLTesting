@@ -8,7 +8,7 @@
 
 class ShaderManager {
 public:
-    explicit ShaderManager(const QString& baseDir, const QString& version = "140");
+    explicit ShaderManager(const QString& baseDir, const QString& version = "130");
     bool loadModule(const QString& filePath);
     QString buildShader(const QString& mainFile);
 

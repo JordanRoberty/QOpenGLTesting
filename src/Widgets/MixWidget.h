@@ -13,9 +13,9 @@
 #include <QMatrix4x4>
 #include <vector>
 
-    #include <QElapsedTimer>
-    #include <QTimer>
-    #include <QThread>
+  #include <QElapsedTimer>
+  #include <QTimer>
+  #include <QThread>
 
 
 #include "../Cameras/TrackBall.h" 
@@ -106,7 +106,8 @@ class MixWidget : public QOpenGLWidget, protected QOpenGLFunctions
     int m_cameraType;
 
     // -- Shaders --
-    QOpenGLShaderProgram m_mainProgram; // perform color computation and depth peeling
+    QOpenGLShaderProgram m_mainProgram; // perform color computation 
+    QOpenGLShaderProgram m_depthProgram; // perform depth peeling
     QOpenGLShaderProgram m_blendProgram; // blend the layers
 
     // -- Objects --

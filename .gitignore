@@ -1,6 +1,9 @@
 # Ignore all files in the build directory
 /build/*
 
+# Ignore the Debug directory
+/Debug/*
+
 # Keep the build directory empty with a .gitkeep file
 !/build/.gitkeep
 

@@ -15,14 +15,14 @@ uniform float u_materialShininess;
 /*
 According to the Blinn-Phong reflection model : https://en.wikipedia.org/wiki/Blinn%E2%80%93Phong_reflection_model
 */
-vec4 BlinnPhong(vec3 fragPos, vec3 normal) {
+vec4 BlinnPhong(vec4 ambiant, vec3 fragPos, vec3 normal) {
     vec3 N = normalize(normal);
     vec3 L = normalize(-u_lightDirection);
     vec3 V = normalize(u_viewPosition - fragPos);
     vec3 H = normalize(L + V);
 
     // ambiant
-    vec3 ambient = u_lightAmbient * v_Color.rgb;
+    vec3 ambient = u_lightAmbient * ambiant.rgb;
 
     // diffuse
     float diff = max(dot(N, L), 0.0);
@@ -35,5 +35,5 @@ vec4 BlinnPhong(vec3 fragPos, vec3 normal) {
     // final color
     vec3 finalColor = (ambient + diffuse + specular) * u_lightIntensity;
 
-    return vec4(finalColor, v_Color.a);
+    return vec4(finalColor, ambiant.a);
 }
