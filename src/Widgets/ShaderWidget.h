@@ -133,6 +133,7 @@ class ShaderWidget : public QOpenGLWidget, protected QOpenGLFunctions
   int m_viewportWidth;
   int m_viewportHeight;
   int m_vertexCount;
+  std::string m_displayType;
 
 
   DynamicShaderBuilder m_shaderBuilder;

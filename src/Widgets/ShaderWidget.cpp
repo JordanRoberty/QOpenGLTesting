@@ -1,37 +1,40 @@
 #include "ShaderWidget.h"
 #include <iostream>
+#include <fstream>
 #include "../Utilitaire/BlinnPhongIlluminationModel.h"
 #include "../Utilitaire/DepthPeelingEffect.h"
 
 // ------------------------------------------------------ Constructor ------------------------------------------------------
 ShaderWidget::ShaderWidget(QWidget *parent):
   QOpenGLWidget(parent),
-  m_maxLayers(16),
+  m_maxLayers(6),
   m_viewportWidth(width()),
   m_viewportHeight(height()),
   m_nearPlane(0.01f),
-  m_farPlane(10000.0f),
+  m_farPlane(100.0f),
   m_cameraType(TRACKBALL),
   m_useDepthPeeling(1)
 {
   // -- init light --
-    m_light.direction = QVector3D(0.0f, -1.0f, -2.0f);
-    m_light.ambient = QVector3D(1.0f, 1.0f, 1.0f);
-    m_light.diffuse = QVector3D(0.5f, 0.5f, 0.5f);
-    m_light.specular = QVector3D(1.0f, 1.0f, 1.0f);
-    m_light.intensity = 1.0f;
+  m_light.direction = QVector3D(0.0f, -1.0f, -2.0f);
+  m_light.ambient = QVector3D(1.0f, 1.0f, 1.0f);
+  m_light.diffuse = QVector3D(0.5f, 0.5f, 0.5f);
+  m_light.specular = QVector3D(1.0f, 1.0f, 1.0f);
+  m_light.intensity = 1.0f;
 
   // -- init materials --
-    //m_material.ambient = QVector4D(1.0f, 1.0f, 0.0f, 0.5f); Using the shape's color
-    m_material.diffuse = QVector3D(0.f, 0.0f, 0.0f);
-    m_material.specular = QVector3D(1.0f, 1.0f, 1.0f);
-    m_material.shininess = 32.0f;
+  //m_material.ambient = QVector4D(1.0f, 1.0f, 0.0f, 0.5f); Using the shape's color
+  m_material.diffuse = QVector3D(0.f, 0.0f, 0.0f);
+  m_material.specular = QVector3D(1.0f, 1.0f, 1.0f);
+  m_material.shininess = 32.0f;
 
   // -- init timers --
-    m_fpsTimer.start();
-    m_displayTimer = new QTimer(this);
-    connect(m_displayTimer, &QTimer::timeout, this, &ShaderWidget::updateFPSDisplay);
-    m_displayTimer->start(1000);
+  m_fpsTimer.start();
+  m_displayTimer = new QTimer(this);
+  connect(m_displayTimer, &QTimer::timeout, this, &ShaderWidget::updateFPSDisplay);
+  m_displayTimer->start(1000);
+
+  m_displayType = m_useDepthPeeling ? "Depth Peeling" : "Direct";
 }
 
 ShaderWidget::~ShaderWidget()
@@ -110,6 +113,7 @@ void ShaderWidget::keyPressEvent(QKeyEvent *event)
   else if(event->key() == Qt::Key_M)
   {
     m_useDepthPeeling = !m_useDepthPeeling;
+    m_displayType = m_useDepthPeeling ? "Depth Peeling" : "Direct";
     cleanUpShaders();
     initShaders();
   }
@@ -210,11 +214,17 @@ void ShaderWidget::paintGL()
   }
   else
   {
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     m_mainProgram.bind();
     setBlinnPhongUniforms(m_mainProgram);
     setSceneUniforms(m_mainProgram);
     renderScene(m_mainProgram);
     m_mainProgram.release();
+
+    glDisable(GL_BLEND);
   }
 
   m_frameCount++;
@@ -225,8 +235,9 @@ void ShaderWidget::paintGL()
 
 void ShaderWidget::createObjects()
 {
-  createSphere(QVector3D(0.0, 0.0, 0.0), 0.5f, 32, 16, QVector4D(1.0, 0.0, 1.0, 1.0));
-  createSphere(QVector3D(0.2, 0.0, 1.0), 0.5f, 32, 16, QVector4D(1.0, 0.0, 0.0, 0.5));
+  createSphere(QVector3D(0.2, -0.2, -0.2), 0.5f, 32, 16, QVector4D(0.0, 1.0, 0.0, 0.5));
+  //createSphere(QVector3D(0.0, 0.0, 0.0), 0.5f, 32, 16, QVector4D(0.0, 0.0, 1.0, 0.5));
+  createSphere(QVector3D(0.2, 0.0, 0.2), 0.5f, 32, 16, QVector4D(1.0, 0.0, 0.0, 0.5));
 
   m_displayListScene = glGenLists(1);
   glNewList(m_displayListScene, GL_COMPILE);
@@ -277,7 +288,29 @@ void ShaderWidget::createSphere(const QVector3D &center, float radius, int slice
   glPopMatrix();    
   glEndList();
 
-  m_displayListsSphere.push_back(sphereList);
+  // GLuint sphereList = glGenLists(1);
+  // glNewList(sphereList, GL_COMPILE);
+
+  // glPushMatrix();
+  // glLoadIdentity();
+  // glTranslatef(center.x(), center.y(), center.z());
+  // glColor4f(color.x(), color.y(), color.z(), color.w());
+  // glBegin(GL_TRIANGLES);
+
+  // glVertex3f(-0.5f, -0.5f, 0.0f);
+  // glVertex3f(-0.5f, 0.5f, 0.0f);
+  // glVertex3f(0.5f, 0.5f, 0.0f);
+
+  // glVertex3f(-0.5f, -0.5f, 0.0f);
+  // glVertex3f(0.5f, 0.5f, 0.0f);
+  // glVertex3f(0.5f, -0.5f, 0.0f);
+
+  // glEnd();
+  // glPopMatrix();
+  // glEndList();
+
+
+   m_displayListsSphere.push_back(sphereList);
 }
 
 void ShaderWidget::createFullScreenQuad()
@@ -322,15 +355,34 @@ void ShaderWidget::initShaders()
   {
       shaderBuilder.addEffect(std::make_unique<DepthPeelingEffect>());
       m_blendProgram.create();
-      m_blendProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, "../shaders/Mix/blend.vs.glsl");
-      m_blendProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, "../shaders/Mix/blend.fs.glsl");
+      m_blendProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, "../shaders/dynamic/blend.vs.glsl");
+      m_blendProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, "../shaders/dynamic/blend.fs.glsl");
       m_blendProgram.link();
   }
+
   std::string fragmentSource = shaderBuilder.generateShaderSource().c_str();
+
 
   m_mainProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, "../shaders/dynamic/main.vs.glsl");
   m_mainProgram.addShaderFromSourceCode(QOpenGLShader::Fragment, QString::fromStdString(fragmentSource));
   m_mainProgram.link();
+
+
+  // --- TEST ---
+  std::ofstream shaderFile;
+  shaderFile.open("../Debug/shader.fs.glsl");
+
+  if (shaderFile.is_open())
+  {
+    shaderFile << fragmentSource;
+    shaderFile.close();
+  }
+  else
+  {
+    std::cout << "Unable to open file" << std::endl;
+  }
+
+  // --- TEST ---
 
 
 }
@@ -411,11 +463,11 @@ void ShaderWidget::drawFullScreenQuad()
 
 void ShaderWidget::depthPeeling()
 {
+  glEnable(GL_DEPTH_TEST);
   initDepthPeeling();
   depthPeelingPass();
   glDisable(GL_DEPTH_TEST);
   blendPass();
-  glEnable(GL_DEPTH_TEST);
 }
 
 // ------------------------------------------------------ Uniforms functions ------------------------------------------------------
@@ -478,9 +530,9 @@ void ShaderWidget::depthPeelingPass()
     m_peelingFbo[i]->bind();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glActiveTexture(GL_TEXTURE0);
+    glActiveTexture(GL_TEXTURE3);
     m_depthTextures[i-1]->bind();
-    m_mainProgram.setUniformValue("u_previousDepthTexture", 0);
+    m_mainProgram.setUniformValue("u_previousDepthTexture", 3);
 
     setBlinnPhongUniforms(m_mainProgram);
     setDepthPeelingUniforms(m_mainProgram, i);
@@ -509,7 +561,6 @@ void ShaderWidget::blendPass()
   }
 
   m_blendProgram.setUniformValue("u_numLayers", m_maxLayers);
-  m_blendProgram.setUniformValue("u_useDepthPeeling", 0); // REMOVE
 
   drawFullScreenQuad();
 
@@ -609,7 +660,7 @@ void ShaderWidget::updateFPSDisplay()
   qint64 elapsed = m_fpsTimer.elapsed();
   m_fps = m_frameCount * 1000.0 / elapsed;
 
-  setWindowTitle(QString("OpenGL - FPS: %1").arg(m_fps, 0, 'f', 1));
+  setWindowTitle(QString("OpenGL - FPS: %1 in %2").arg(m_fps, 0, 'f', 1).arg(QString::fromStdString(m_displayType)));
 
   m_frameCount = 0;
   m_fpsTimer.restart();

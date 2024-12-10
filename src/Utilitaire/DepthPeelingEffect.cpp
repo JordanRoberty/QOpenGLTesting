@@ -8,7 +8,7 @@ std::string DepthPeelingEffect::getUniformDeclarations() const
 {
   return R"(
 uniform sampler2D u_previousDepthTexture;
-uniform float u_layer;
+uniform int u_layer;
   )";
 }
 
