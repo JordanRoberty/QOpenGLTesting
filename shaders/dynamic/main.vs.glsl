@@ -1,3 +1,4 @@
+#version 130
 uniform mat4 u_ProjectionMatrix;
 uniform mat4 u_ViewMatrix;
 uniform mat4 u_model;
