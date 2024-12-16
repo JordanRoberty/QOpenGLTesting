@@ -24,7 +24,7 @@ ShaderWidget::ShaderWidget(QWidget *parent):
 
   // -- init materials --
   //m_material.ambient = QVector4D(1.0f, 1.0f, 0.0f, 0.5f); Using the shape's color
-  m_material.diffuse = QVector3D(0.f, 0.0f, 0.0f);
+  m_material.diffuse = QVector3D(0.8f, 0.6f, 0.0f);
   m_material.specular = QVector3D(1.0f, 1.0f, 1.0f);
   m_material.shininess = 32.0f;
 
@@ -217,7 +217,6 @@ void ShaderWidget::paintGL()
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
     m_mainProgram.bind();
     setBlinnPhongUniforms(m_mainProgram);
     setSceneUniforms(m_mainProgram);
@@ -346,7 +345,13 @@ void ShaderWidget::initShaders()
   m_mainProgram.create();
   DynamicShaderBuilder shaderBuilder;
 
-  std::string baseTemplate = shaderBuilder.readShaderFile("../shaders/dynamic/main.fs.glsl");
+  shaderBuilder.setVersion(330);
+  std::string baseTemplate = shaderBuilder.readShaderFile("../shaders/dynamic/main.vs.glsl");
+  shaderBuilder.setBaseTemplate(baseTemplate);
+  std::string vertexSource = shaderBuilder.generateShaderSource().c_str();
+  m_mainProgram.addShaderFromSourceCode(QOpenGLShader::Vertex, QString::fromStdString(vertexSource));
+
+  baseTemplate = shaderBuilder.readShaderFile("../shaders/dynamic/main.fs.glsl");
   shaderBuilder.setBaseTemplate(baseTemplate);
  
   shaderBuilder.setIlluminationModel(std::make_unique<BlinnPhongIlluminationModel>());
@@ -355,34 +360,40 @@ void ShaderWidget::initShaders()
   {
       shaderBuilder.addEffect(std::make_unique<DepthPeelingEffect>());
       m_blendProgram.create();
-      m_blendProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, "../shaders/dynamic/blend.vs.glsl");
-      m_blendProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, "../shaders/dynamic/blend.fs.glsl");
+      DynamicShaderBuilder blendShaderBuilder;
+      blendShaderBuilder.setVersion(330);
+      std::string blendBaseTemplate = blendShaderBuilder.readShaderFile("../shaders/dynamic/blend.vs.glsl");
+      blendShaderBuilder.setBaseTemplate(blendBaseTemplate);
+      std::string blendVertexSource = blendShaderBuilder.generateShaderSource().c_str();
+      m_blendProgram.addShaderFromSourceCode(QOpenGLShader::Vertex, QString::fromStdString(blendVertexSource));
+
+      blendBaseTemplate = blendShaderBuilder.readShaderFile("../shaders/dynamic/blend.fs.glsl");
+      blendShaderBuilder.setBaseTemplate(blendBaseTemplate);
+      std::string blendFragmentSource = blendShaderBuilder.generateShaderSource().c_str();
+      m_blendProgram.addShaderFromSourceCode(QOpenGLShader::Fragment, QString::fromStdString(blendFragmentSource));
       m_blendProgram.link();
   }
 
   std::string fragmentSource = shaderBuilder.generateShaderSource().c_str();
-
-
-  m_mainProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, "../shaders/dynamic/main.vs.glsl");
   m_mainProgram.addShaderFromSourceCode(QOpenGLShader::Fragment, QString::fromStdString(fragmentSource));
   m_mainProgram.link();
 
 
-  // --- TEST ---
-  std::ofstream shaderFile;
-  shaderFile.open("../Debug/shader.fs.glsl");
+  // --- DEBUG ---
+  // std::ofstream shaderFile;
+  // shaderFile.open("../Debug/shader.fs.glsl");
 
-  if (shaderFile.is_open())
-  {
-    shaderFile << fragmentSource;
-    shaderFile.close();
-  }
-  else
-  {
-    std::cout << "Unable to open file" << std::endl;
-  }
+  // if (shaderFile.is_open())
+  // {
+  //   shaderFile << fragmentSource;
+  //   shaderFile.close();
+  // }
+  // else
+  // {
+  //   std::cout << "Unable to open file" << std::endl;
+  // }
 
-  // --- TEST ---
+  // --- DEBUG ---
 
 
 }
@@ -530,9 +541,9 @@ void ShaderWidget::depthPeelingPass()
     m_peelingFbo[i]->bind();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glActiveTexture(GL_TEXTURE3);
+    glActiveTexture(GL_TEXTURE0);
     m_depthTextures[i-1]->bind();
-    m_mainProgram.setUniformValue("u_previousDepthTexture", 3);
+    m_mainProgram.setUniformValue("u_previousDepthTexture", 0);
 
     setBlinnPhongUniforms(m_mainProgram);
     setDepthPeelingUniforms(m_mainProgram, i);

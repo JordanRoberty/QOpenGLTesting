@@ -12,6 +12,7 @@ class DynamicShaderBuilder
 {
   public:
     DynamicShaderBuilder();
+    void setVersion(int version);
     void setBaseTemplate(const std::string &templateSource);
     void setIlluminationModel(std::unique_ptr<IShaderModule> model);
     void addEffect(std::unique_ptr<IShaderModule> effect);
@@ -22,8 +23,9 @@ class DynamicShaderBuilder
   
   private:
     std::string m_baseShaderTemplate;
-     std::unique_ptr<IShaderModule> m_illuminationModel = nullptr;
+    std::unique_ptr<IShaderModule> m_illuminationModel = nullptr;
     std::vector<std::unique_ptr<IShaderModule>> m_effects;
+    int m_version;
 };
 
 #endif // DYNAMIC_SHADER_BUILDER_H

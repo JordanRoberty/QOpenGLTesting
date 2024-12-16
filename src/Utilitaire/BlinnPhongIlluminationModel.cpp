@@ -56,12 +56,12 @@ std::string BlinnPhongIlluminationModel::getFunctionCall() const
 
 void BlinnPhongIlluminationModel::setupUniforms(uint shaderProgram) const
 {
-  // glUniform3fv(glGetUniformLocation(shaderProgram, "u_lightDirection"), 1, &m_lightDirection[0]);
-  // glUniform3fv(glGetUniformLocation(shaderProgram, "u_lightAmbient"), 1, &m_lightAmbient[0]);
-  // glUniform3fv(glGetUniformLocation(shaderProgram, "u_lightDiffuse"), 1, &m_lightDiffuse[0]);
-  // glUniform3fv(glGetUniformLocation(shaderProgram, "u_lightSpecular"), 1, &m_lightSpecular[0]);
+  // glUniform3fv(glGetUniformLocation(shaderProgram, "u_lightDirection"), 1, m_lightDirection);
+  // glUniform3fv(glGetUniformLocation(shaderProgram, "u_lightAmbient"), 1, m_lightAmbient);
+  // glUniform3fv(glGetUniformLocation(shaderProgram, "u_lightDiffuse"), 1, m_lightDiffuse);
+  // glUniform3fv(glGetUniformLocation(shaderProgram, "u_lightSpecular"), 1, m_lightSpecular);
   // glUniform1f(glGetUniformLocation(shaderProgram, "u_lightIntensity"), m_lightIntensity);
-  // glUniform3fv(glGetUniformLocation(shaderProgram, "u_materialDiffuse"), 1, &m_materialDiffuse[0]);
-  // glUniform3fv(glGetUniformLocation(shaderProgram, "u_materialSpecular"), 1, &m_materialSpecular[0]);
+  // glUniform3fv(glGetUniformLocation(shaderProgram, "u_materialDiffuse"), 1, m_materialDiffuse);
+  // glUniform3fv(glGetUniformLocation(shaderProgram, "u_materialSpecular"), 1, m_materialSpecular);
   // glUniform1f(glGetUniformLocation(shaderProgram, "u_materialShininess"), m_materialShininess);
 }

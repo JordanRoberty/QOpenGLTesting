@@ -11,10 +11,16 @@ DynamicShaderBuilder::DynamicShaderBuilder()
 {
 }
 
+void DynamicShaderBuilder::setVersion(int version)
+{
+  m_version = version;
+}
+
 void DynamicShaderBuilder::setBaseTemplate(const std::string &templateSource)
 {
   m_baseShaderTemplate = templateSource;
 }
+
 
 void DynamicShaderBuilder::setIlluminationModel(std::unique_ptr<IShaderModule>  model)
 {
@@ -35,7 +41,8 @@ std::string DynamicShaderBuilder::readShaderFile(const std::string &filePath)
   }
   
   QTextStream in(&file);
-  std::string shaderSource = in.readAll().toStdString();
+  std::string shaderSource = "#version " + std::to_string(m_version) + " compatibility" + '\n';
+  shaderSource += in.readAll().toStdString();
   file.close();
 
   return shaderSource;
